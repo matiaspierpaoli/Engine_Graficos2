@@ -225,6 +225,7 @@ xcopy "$(ProjectDir)shaders" "$(SolutionDir)Game\shaders" /e /s /y /r /i
     <ClInclude Include="src\TimeSingleton.h" />
     <ClInclude Include="src\Time\Time.h" />
     <ClInclude Include="src\Vector2.h" />
+    <ClInclude Include="src\Vector3.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\Window\Window.h" />
   </ItemGroup>

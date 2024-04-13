@@ -3,12 +3,23 @@
 
 #pragma region keyCodes
 
+//Traslate
 #define KEY_W 87
 #define KEY_A 65
 #define KEY_S 83
 #define KEY_D 68
 #define KEY_Q 81
 #define KEY_E 69
+
+//Rotate
+#define KEY_R 82
+#define KEY_T 84
+#define KEY_F 70
+#define KEY_G 71
+#define KEY_C 67
+#define KEY_V 86
+
+//Rotate
 #define KEY_Z 90
 #define KEY_X 88
 
@@ -39,14 +50,16 @@ void Game::Init()
 
 	traslateX = 0.f;
 	traslateY = 0.f;
+	traslateZ = 0.f;
 	
-	defaultTranslation.x = 50.0f;
-	defaultTranslation.y = 50.0f; 
+	defaultTranslation.x = 1.0f;
+	defaultTranslation.y = 1.0f; 
+	defaultTranslation.z = 1.0f; 
 
-	defaultRotation = 10.0f;
+	defaultRotation = 100.0f;
 
-	defaultScale.x = 10.0f;
-	defaultScale.y = 10.0f;
+	defaultScale.x = 1.0f;
+	defaultScale.y = 1.0f;
 
 	int sonicSpriteSheetWidth = 830;
 	int sonicSpriteSheetHeight = 465;
@@ -83,8 +96,8 @@ void Game::Init()
 
 
 	sonic = new Sprite("res/Sonic_Mania_Sprite_Sheet.png",  12, sonicIdleFrames.at(0));
-	sonic->Scale(75, 75);
-	sonic->Translate(512 / 2 - 70, 257 / 2 - 30);
+	//sonic->Scale(-0.8, -0.8);
+	//sonic->Translate(512 / 2 - 70, 257 / 2 - 30);
 
 	sonicIdleAnim = new Animation(3, sonicSpriteSheetWidth, sonicSpriteSheetHeight, sonicIdleFrames);
 	sonicRunAnim = new Animation(0.8, sonicSpriteSheetWidth, sonicSpriteSheetHeight, sonicRunFrames);
@@ -101,8 +114,9 @@ void Game::Init()
 	cartelFrames.push_back(Frame(328, 378, sonicSpriteSheetHeight - 372, sonicSpriteSheetHeight - 322));
 
 	cartel = new Sprite("res/Sonic_Mania_Sprite_Sheet.png", 5, cartelFrames.at(0));
-	cartel->Scale(75, 75);
-	cartel->Translate(512 / 2 + 70, 257 / 2 + 40);
+	//cartel->Scale(-0.6, -0.6);
+	cartel->Translate(0, 0, -2);
+	//cartel->Scale(1.0, 1.0);
 
 	cartelAnim = new Animation(3, sonicSpriteSheetWidth, sonicSpriteSheetHeight, cartelFrames);
 
@@ -110,9 +124,24 @@ void Game::Init()
 
 #pragma endregion
 
-	background = new Sprite("res/background.png", 1, Frame(0, 512, 0, 257));
-	background->Translate(512 / 2, 257 / 2);
-	background->Scale(512 , 257);
+	frontWall = new Sprite("res/frontWall.png", 1, Frame(0, 370, 0, 186));
+	frontWall->Translate(0, 0.3, -2);
+	frontWall->Scale(3 , 2.2);
+
+	floor = new Sprite("res/floor.png", 1, Frame(0, 1024, 0, 1000));
+	floor->Translate(0, -1.1, 0);
+	floor->RotateX(-90);
+	floor->Scale(2.5, 1.8);
+	
+	sideWall1 = new Sprite("res/sideWalls.png", 1, Frame(0, 800, 0, 600));
+	sideWall1->Translate(-1.8, 0.3, 0);
+	sideWall1->RotateY(90);
+	sideWall1->Scale(2, 1.8);
+	
+	sideWall2 = new Sprite("res/sideWalls.png", 1, Frame(0, 800, 0, 600));
+	sideWall2->Translate(1.8, 0.3, 0);
+	sideWall2->RotateY(-90);
+	sideWall2->Scale(2, 1.8);
 
 	//float vertexCol1[4][4] =
 	//{
@@ -142,6 +171,8 @@ void Game::Init()
 	isMovingBackward = false;
 	isMovingLeft = false;
 	isMovingRight = false;
+	isMovingNear = false;
+	isMovingFurther = false;
 }
 
 void Game::DeInit()
@@ -158,10 +189,28 @@ void Game::DeInit()
 		cartel = nullptr;
 	}
 
-	if (background != nullptr)
+	if (frontWall != nullptr)
 	{
-		delete background;
-		background = nullptr;
+		delete frontWall;
+		frontWall = nullptr;
+	}
+	
+	if (floor != nullptr)
+	{
+		delete floor;
+		floor = nullptr;
+	}
+	
+	if (sideWall1 != nullptr)
+	{
+		delete sideWall1;
+		sideWall1 = nullptr;
+	}
+	
+	if (sideWall2 != nullptr)
+	{
+		delete sideWall2;
+		sideWall2 = nullptr;
 	}
 
 	if (sonicIdleAnim != nullptr)
@@ -208,6 +257,10 @@ void Game::Update()
 		isMovingBackward = false;
 		isMovingLeft = false;
 		isMovingRight = false;
+
+		//moveVectorPlayer1.z = -1;
+		//isMovingNear = true;
+		//isMovingFurther = false;
 	}
 	else if (IsKeyPressed(KEY_S))
 	{
@@ -216,12 +269,20 @@ void Game::Update()
 		isMovingBackward = true;
 		isMovingLeft = false;
 		isMovingRight = false;
+
+		/*moveVectorPlayer1.z = 1;
+		isMovingNear = false;
+		isMovingFurther = true;*/
 	}
 	else
 	{
 		moveVectorPlayer1.y = 0;
 		isMovingForward = false;
 		isMovingBackward = false;
+
+		/*moveVectorPlayer1.z = 0;
+		isMovingNear = false;
+		isMovingFurther = false;*/
 	}
 
 	if (IsKeyPressed(KEY_A))
@@ -246,12 +307,43 @@ void Game::Update()
 		isMovingLeft = false;
 		isMovingRight = false;
 	}
-	
-	if (IsKeyPressed(KEY_Q))
-		sonic->Rotate(defaultRotation * time->GetDeltaTime());
 
-	if (IsKeyPressed(KEY_E))
-		sonic->Rotate(-defaultRotation * time->GetDeltaTime());
+	if (IsKeyPressed(KEY_Q))
+	{
+		moveVectorPlayer1.z = -1;
+		isMovingNear = true;
+		isMovingFurther = false;
+	}
+	else if (IsKeyPressed(KEY_E))
+	{
+		moveVectorPlayer1.z = 1;
+		isMovingNear = false;
+		isMovingFurther = true;
+	}
+	else
+	{
+		moveVectorPlayer1.z = 0;
+		isMovingNear = false;
+		isMovingFurther = false;
+	}
+	
+	if (IsKeyPressed(KEY_R))
+		sonic->RotateX(defaultRotation * time->GetDeltaTime());
+
+	if (IsKeyPressed(KEY_T))
+		sonic->RotateX(-defaultRotation * time->GetDeltaTime());
+
+	if (IsKeyPressed(KEY_F))
+		sonic->RotateY(defaultRotation * time->GetDeltaTime());
+
+	if (IsKeyPressed(KEY_G))
+		sonic->RotateY(-defaultRotation * time->GetDeltaTime());
+
+	if (IsKeyPressed(KEY_C))
+		sonic->RotateZ(defaultRotation * time->GetDeltaTime());
+
+	if (IsKeyPressed(KEY_V))
+		sonic->RotateZ(-defaultRotation * time->GetDeltaTime());
 
 	if (IsKeyPressed(KEY_X))
 		scaleVectorPlayer1 = 1;
@@ -262,15 +354,16 @@ void Game::Update()
 
 	#pragma endregion
 
-	if (!moveVectorPlayer1.x == 0 || !moveVectorPlayer1.y == 0)
+	if (!moveVectorPlayer1.x == 0 || !moveVectorPlayer1.y == 0 || !moveVectorPlayer1.z == 0)
 	{
 		static_cast<Sprite*>(sonic)->UpdateFrame(1);
 
 		traslateX = moveVectorPlayer1.x * defaultTranslation.x * time->GetDeltaTime();
 		traslateY = moveVectorPlayer1.y * defaultTranslation.y * time->GetDeltaTime();
+		traslateZ = moveVectorPlayer1.z * defaultTranslation.z * time->GetDeltaTime();
 
-		sonic->Translate(traslateX, traslateY);
-		checkCollisions(sonic, cartel);
+		sonic->Translate(traslateX, traslateY, traslateZ);
+		//checkCollisions(sonic, cartel);
 	}
 
 	if (!scaleVectorPlayer1 == 0)
@@ -279,7 +372,7 @@ void Game::Update()
 		scaleY = scaleVectorPlayer1 * defaultScale.y * time->GetDeltaTime();
 
 		sonic->Scale(scaleX, scaleY);
-		checkCollisions(sonic, cartel);
+		//checkCollisions(sonic, cartel);
 	}
 
 	if (!isMovingForward && !isMovingBackward && !isMovingLeft && !isMovingRight)
@@ -287,8 +380,11 @@ void Game::Update()
 		static_cast<Sprite*>(sonic)->UpdateFrame(0);
 	}
 
-	static_cast<Sprite*>(background)->Draw();
-	static_cast<Sprite*>(cartel)->Draw();
+	static_cast<Sprite*>(frontWall)->Draw();
+	static_cast<Sprite*>(sideWall1)->Draw();
+	static_cast<Sprite*>(sideWall2)->Draw();
+	static_cast<Sprite*>(floor)->Draw();
+	//static_cast<Sprite*>(cartel)->Draw();
 	static_cast<Sprite*>(sonic)->Draw();
 
 	/*static_cast<Square*>(square1)->Draw();
@@ -297,7 +393,7 @@ void Game::Update()
 
 void Game::checkCollisions(Entity2D* player1, Entity2D* player2)
 {
-	while (collisionManager->checkEntityToEntityCollision(player1, player2))
+	/*while (collisionManager->checkEntityToEntityCollision(player1, player2))
 	{
 		if (!moveVectorPlayer1.x == 0 || !moveVectorPlayer1.y == 0 ||
 			!moveVectorPlayer2.x == 0 || !moveVectorPlayer2.y == 0)
@@ -315,5 +411,5 @@ void Game::checkCollisions(Entity2D* player1, Entity2D* player2)
 		
 		if (!scaleVectorPlayer1 == 0 || !scaleVectorPlayer2 == 0)
 			player1->Scale(-scaleX, -scaleY);
-	}
+	}*/
 }

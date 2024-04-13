@@ -15,8 +15,10 @@ Renderer::Renderer(Window* window)
 
 	program = new Program();
 
-	proj = glm::ortho(0.0f, window->GetWidth(), 0.0f, window->GetHeight(), -1.0f, 1.0f);
-	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 cameraPos = glm::vec3(0.0f,0.0f,3.0f);
+
+	proj = glm::perspective(glm::radians(45.0f), window->GetWidth() / window->GetHeight(), 0.1f, 100.0f);
+	view = glm::lookAt(cameraPos, cameraPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	//unsigned int shader = program->CreateShader(program->ReadFile("shaders/vertexShader.shader"), program->ReadFile("shaders/fragmentShader.shader"));
 	unsigned int shader = program->CreateShader(program->ReadFile("shaders/vertexShaderSprite.shader"), program->ReadFile("shaders/fragmentShaderSprite.shader"));
@@ -24,6 +26,9 @@ Renderer::Renderer(Window* window)
 
 	//glGenVertexArrays(1, &vao);
 	//glBindVertexArray(vao);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_ALPHA_TEST);
 
 	SetUniversalSpriteSettings();
 }
@@ -41,7 +46,9 @@ Renderer::~Renderer()
 
 void Renderer::ClearScreen()
 {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glViewport(0, 0, window->GetWidth(), window->GetHeight());
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::SwapWindowBuffers()

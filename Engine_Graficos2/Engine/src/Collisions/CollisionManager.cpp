@@ -27,17 +27,35 @@ bool CollisionManager::checkEntityToEntityCollision(Entity2D* entity1, Entity2D*
 	}
 }
 
+//bool CollisionManager::checkEntityToWindowCollision(Entity2D* entity, Window* window)
+//{
+//	if (entity->GetTranslation().x - entity->GetScale().x / 2 < 0 ||
+//		entity->GetTranslation().x + entity->GetScale().x / 2 > window->GetWidth() ||
+//		entity->GetTranslation().y - entity->GetScale().y / 2 < 0 ||
+//		entity->GetTranslation().y + entity->GetScale().y / 2 > window->GetHeight())
+//	{
+//		return true;
+//	}
+//	else
+//	{
+//		return false;
+//	}
+//}
+
 bool CollisionManager::checkEntityToWindowCollision(Entity2D* entity, Window* window)
 {
-	if (entity->GetTranslation().x - entity->GetScale().x / 2 < 0 ||
-		entity->GetTranslation().x + entity->GetScale().x / 2 > window->GetWidth() ||
-		entity->GetTranslation().y - entity->GetScale().y / 2 < 0 ||
-		entity->GetTranslation().y + entity->GetScale().y / 2 > window->GetHeight())
+	float leftEdge = entity->GetTranslation().x - (entity->GetScale().x / 2);
+	float rightEdge = entity->GetTranslation().x + (entity->GetScale().x / 2);
+	float topEdge = entity->GetTranslation().y - (entity->GetScale().y / 2);
+	float bottomEdge = entity->GetTranslation().y + (entity->GetScale().y / 2);
+
+	if (leftEdge >= 0 && rightEdge <= window->GetWidth() &&
+		topEdge >= 0 && bottomEdge <= window->GetHeight())
 	{
-		return true;
+		return false; // No collision with window
 	}
 	else
 	{
-		return false;
+		return true; // Collision with window
 	}
 }

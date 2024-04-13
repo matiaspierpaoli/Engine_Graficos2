@@ -10,19 +10,23 @@ private:
 
 	Entity2D* sonic;
 	Entity2D* cartel;
-	Entity2D* background;
+	Entity2D* frontWall;
+	Entity2D* sideWall1;
+	Entity2D* sideWall2;
+	Entity2D* floor;
 
 	Entity2D* square1;
 	Entity2D* square2;
 
 	float traslateX;
 	float traslateY;
+	float traslateZ;
 	float scaleX;
 	float scaleY;
-	Vector2 defaultTranslation;
+	Vector3 defaultTranslation;
 	float defaultRotation;
 	Vector2 defaultScale;
-	Vector2 moveVectorPlayer1;
+	Vector3 moveVectorPlayer1;
 	Vector2 moveVectorPlayer2;
 	float scaleVectorPlayer1;
 	float scaleVectorPlayer2;
@@ -31,6 +35,8 @@ private:
 	bool isMovingBackward;
 	bool isMovingLeft;
 	bool isMovingRight;	
+	bool isMovingNear;	
+	bool isMovingFurther;	
 
 	std::vector<Frame> sonicIdleFrames = std::vector<Frame>();
 	std::vector<Frame> sonicRunFrames = std::vector<Frame>();

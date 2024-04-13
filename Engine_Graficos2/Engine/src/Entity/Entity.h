@@ -1,12 +1,13 @@
 #pragma once
 #include "Vector2.h"
+#include "Vector3.h"
 #include "Exports.h"
 
 class GraficosEngine_API Entity
 {
 private:
-	Vector2 translation;
-	float rotation;
+	Vector3 translation;
+	Vector3 rotation;
 	Vector2 scale;
 
 public:
@@ -17,12 +18,14 @@ public:
 	unsigned int* iBuffer;
 	unsigned int modelId;
 
-	void Translate(float x, float y);
-	void Rotate(float angle);
+	void Translate(float x, float y, float z);
+	void RotateX(float angle);
+	void RotateY(float angle);
+	void RotateZ(float angle);
 	void Scale(float x, float y);
 
-	Vector2 GetTranslation();
-	float GetRotation();
+	Vector3 GetTranslation();
+	Vector3 GetRotation();
 	Vector2 GetScale();
 
 	void UpdateModel(bool isModelCreated);
